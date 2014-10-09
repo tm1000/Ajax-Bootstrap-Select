@@ -2,7 +2,7 @@
   "name": "ajax-bootstrap-select",
   "title": "Ajax Bootstrap Select",
   "description": "Extends existing [Bootstrap Select] implementations by adding the ability to search via AJAX requests as you type. Originally for CROSCON.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": {
     "name": "Adam Heim",
     "url": "https://github.com/truckingsim"
@@ -25,6 +25,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/truckingsim/Ajax-Bootstrap-Select.git"
+  },
+  "scripts": {
+  	  "test": "grunt travis --verbose"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
