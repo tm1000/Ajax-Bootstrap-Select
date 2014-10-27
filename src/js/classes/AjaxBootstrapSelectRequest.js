@@ -15,7 +15,7 @@ var AjaxBootstrapSelectRequest = function (plugin) {
             that.plugin.log(that.plugin.LOG_INFO, 'Invoking AjaxBootstrapSelectRequest.' + event + ' callback:', arguments);
             that[event].apply(that, arguments);
             if (that.callbacks[event]) {
-                that.plugin.log(that.plugin.LOG_INFO, 'Invoking ajaxOptions.' + event + ' callback:', arguments);
+                that.plugin.log(that.plugin.LOG_INFO, 'Invoking ajax.' + event + ' callback:', arguments);
                 that.callbacks[event].apply(that, arguments);
             }
         };
@@ -26,8 +26,8 @@ var AjaxBootstrapSelectRequest = function (plugin) {
     // Reference the existing plugin.
     this.plugin = plugin;
 
-    // Clone the default ajaxOptions.
-    this.options = $.extend(true, {}, plugin.options.ajaxOptions);
+    // Clone the default ajax options.
+    this.options = $.extend(true, {}, plugin.options.ajax);
 
     // Save any existing callbacks provided in the options and replace it with
     // the relevant method callback. The provided callback will be invoked
@@ -91,20 +91,22 @@ AjaxBootstrapSelectRequest.prototype.beforeSend = function (jqXHR) {
  * @return {void}
  */
 AjaxBootstrapSelectRequest.prototype.complete = function (jqXHR, status) {
-    // Only continue if actual results.
-    var cache = this.plugin.list.cacheGet(this.plugin.query);
-    if (cache) {
-        if (cache.length) {
-            this.plugin.list.setStatus();
+    // Only continue if actual results and not an aborted state.
+    if (status !== 'abort') {
+        var cache = this.plugin.list.cacheGet(this.plugin.query);
+        if (cache) {
+            if (cache.length) {
+                this.plugin.list.setStatus();
+            }
+            else {
+                this.plugin.list.destroy();
+                this.plugin.list.setStatus(this.plugin.t('statusNoResults'));
+                this.plugin.log(this.plugin.LOG_INFO, 'No results were returned.');
+                return;
+            }
         }
-        else {
-            this.plugin.list.destroy();
-            this.plugin.list.setStatus(this.plugin.t('statusNoResults'));
-            this.plugin.log(this.plugin.LOG_INFO, 'No results were returned.');
-            return;
-        }
+        this.plugin.list.refresh();
     }
-    this.plugin.list.refresh();
 };
 
 /**
@@ -125,21 +127,23 @@ AjaxBootstrapSelectRequest.prototype.complete = function (jqXHR, status) {
  * @return {void}
  */
 AjaxBootstrapSelectRequest.prototype.error = function (jqXHR, status, error) {
-    // Cache the result data.
-    this.plugin.list.cacheSet(this.plugin.query);
+    if (status !== 'abort') {
+        // Cache the result data.
+        this.plugin.list.cacheSet(this.plugin.query);
 
-    // Clear the list.
-    if (this.plugin.options.clearOnError) {
-        this.plugin.list.destroy();
-    }
+        // Clear the list.
+        if (this.plugin.options.clearOnError) {
+            this.plugin.list.destroy();
+        }
 
-    // Set the status after the list has cleared and before the restore.
-    this.plugin.list.setStatus(this.plugin.t('errorText'));
+        // Set the status after the list has cleared and before the restore.
+        this.plugin.list.setStatus(this.plugin.t('errorText'));
 
-    // Restore previous request.
-    if (this.plugin.options.restoreOnError) {
-        this.plugin.list.restore();
-        this.plugin.list.setStatus();
+        // Restore previous request.
+        if (this.plugin.options.restoreOnError) {
+            this.plugin.list.restore();
+            this.plugin.list.setStatus();
+        }
     }
 };
 
@@ -168,7 +172,7 @@ AjaxBootstrapSelectRequest.prototype.process = function (data) {
     preprocessedData = data;
     if ($.isFunction(this.plugin.options.preprocessData)) {
         this.plugin.log(this.plugin.LOG_DEBUG, 'Invoking preprocessData callback:', this.plugin.options.processData);
-        callbackResult = this.plugin.options.preprocessData(preprocessedData);
+        callbackResult = this.plugin.options.preprocessData.apply(this, [preprocessedData]);
         if (typeof callbackResult !== 'undefined' && callbackResult !== null && callbackResult !== false) {
             preprocessedData = callbackResult;
         }
@@ -223,7 +227,7 @@ AjaxBootstrapSelectRequest.prototype.process = function (data) {
     processedData = [].concat(filteredData);
     if ($.isFunction(this.plugin.options.processData)) {
         this.plugin.log(this.plugin.LOG_DEBUG, 'Invoking processData callback:', this.plugin.options.processData);
-        callbackResult = this.plugin.options.processData(processedData);
+        callbackResult = this.plugin.options.processData.apply(this, [processedData]);
         if (typeof callbackResult !== 'undefined' && callbackResult !== null && callbackResult !== false) {
             if ($.isArray(callbackResult)) {
                 processedData = callbackResult;

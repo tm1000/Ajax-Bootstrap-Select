@@ -73,6 +73,8 @@ module.exports = function (grunt) {
                 name: prefix + matches[2],
                 default: matches[3],
                 required: matches[4],
+                dataAttribute: prefix === 'options.' && (!matches[1] || !/function/.test(matches[1].toLowerCase())) ? matches[2].replace(/([A-Z])/g, '-$1').toLowerCase() : null,
+                dataAttributeMultiple: matches[1] && /object/.test(matches[1].toLowerCase()),
                 deprecated: parseLink(deprecated[1])
             };
         },
@@ -121,7 +123,7 @@ module.exports = function (grunt) {
                     handlebars_helpers: {
                         section: function(filename) {
                             if (filename === 'src/js/ajaxSelectPicker.defaults.js') {
-                                return '## Options';
+                                return '## Options\n\nOptions can be passed via data attributes or through the JavaScript options object. For data attributes, append the option name to the `data-abs-` prefix. Options names (and any nested options) are always lower case and separated by `-`, such as in `data-abs-ajax-url="..."` or `data-abs-locale-search-placeholder="..."`.';
                             }
                             else if (filename === 'src/js/ajaxSelectPicker.locale/en-US.js') {
                                 return '## Locale Strings\n\nSee: [options.locale](#optionslocale)';
@@ -259,6 +261,22 @@ module.exports = function (grunt) {
                 files: '<%= jshint.plugin.src %>',
                 tasks: ['plugin']
             }
+        },
+        update_json: {
+            options: {
+                src: 'package.json',
+                indent: '    '
+            },
+            bower: {
+                src: 'package.json',
+                dest: 'bower.json',
+                fields: {
+                    name: null,
+                    version: null,
+                    description: null,
+                    repository: null
+                }
+            }
         }
     });
 
@@ -273,13 +291,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-dss');
     grunt.loadNpmTasks('grunt-jsduck');
     grunt.loadNpmTasks('grunt-verb');
+    grunt.loadNpmTasks('grunt-update-json');
 
     // Default task(s).
     grunt.registerTask('docs', ['dss', 'verb']);
     grunt.registerTask('locale', ['jshint:locale', 'clean:locale', 'copy:locale', 'uglify:locale']);
     grunt.registerTask('plugin', ['jshint:plugin', 'clean:plugin', 'concat:plugin', 'uglify:plugin', 'jsduck']);
     grunt.registerTask('styles', ['clean:styles', 'less']);
-    grunt.registerTask('default', ['docs', 'locale', 'plugin', 'styles']);
+    grunt.registerTask('default', ['docs', 'locale', 'plugin', 'styles', 'update_json']);
     grunt.registerTask('travis', ['jshint:locale', 'clean:locale', 'copy:locale', 'uglify:locale', 'jshint:plugin', 'clean:plugin', 'concat:plugin', 'uglify:plugin', 'clean:styles', 'less']);
 
 };
