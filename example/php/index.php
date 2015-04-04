@@ -43,6 +43,15 @@ $data = json_decode($file_contents, true);
             <select id="ajax-select-multiple" class="selectpicker with-ajax" multiple data-live-search="true"></select>
         </div>
 	</div>
+    <div class="row">
+        <div class="col-xs-4">
+            <h3>Default Options with Ajax-Bootstrap-Select</h3>
+            <select id="ajax-select-default-options" class="selectpicker with-ajax multiple=" multiple data-live-search="true" data-abs-preserve-selected="true">
+                <option selected="selected" value="">Default Chosen 1</option>
+                <option selected="selected" value="">Default Chosen 2</option>
+            </select>
+        </div>
+    </div>
 </div>
 
 

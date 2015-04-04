@@ -45,28 +45,36 @@ var AjaxBootstrapSelectList = function (plugin) {
     this.title = null;
     this.selectedTextFormat = plugin.selectpicker.options.selectedTextFormat;
 
+    // Updates previously selected, also called on load so default selected items
+    //   don't get lost
+    var updateSelectedOptions = function() {
+        var $selected = plugin.$element.find(':selected');
+        that.selected = [];
+        // If select does not have multiple selection, ensure that only the
+        // last selected option is preserved.
+        if (!plugin.selectpicker.multiple) {
+            $selected = $selected.last();
+        }
+        $selected.each(function () {
+            var $option = $(this);
+            var value = $option.attr('value');
+            that.selected.push({
+                value: value,
+                text: $option.text(),
+                'class': $option.attr('class') || '',
+                data: $option.data() || {},
+                preserved: true,
+                selected: true
+            });
+        });
+    };
+
+    updateSelectedOptions();
+
     // Preserve selected options.
     if (plugin.options.preserveSelected) {
         plugin.$element.on('change.abs.preserveSelected', function (e) {
-            var $selected = plugin.$element.find(':selected');
-            that.selected = [];
-            // If select does not have multiple selection, ensure that only the
-            // last selected option is preserved.
-            if (!plugin.selectpicker.multiple) {
-                $selected = $selected.last();
-            }
-            $selected.each(function () {
-                var $option = $(this);
-                var value = $option.attr('value');
-                that.selected.push({
-                    value: value,
-                    text: $option.text(),
-                    'class': $option.attr('class') || '',
-                    data: $option.data() || {},
-                    preserved: true,
-                    selected: true
-                });
-            });
+            updateSelectedOptions();
             that.replaceOptions(that.cacheGet(that.plugin.query));
         });
     }
