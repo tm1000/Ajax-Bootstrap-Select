@@ -1,5 +1,4 @@
-# Ajax Bootstrap Select [![GitHub version](https://badge.fury.io/gh/truckingsim%2FAjax-Bootstrap-Select.svg)](http://badge.fury.io/gh/truckingsim%2FAjax-Bootstrap-Select)  [![Build Status](https://travis-ci.org/truckingsim/Ajax-Bootstrap-Select.svg)](https://travis-ci.org/truckingsim/Ajax-Bootstrap-Select) 
-
+# Ajax Bootstrap Select [![GitHub version](https://badge.fury.io/gh/truckingsim%2FAjax-Bootstrap-Select.svg)](http://badge.fury.io/gh/truckingsim%2FAjax-Bootstrap-Select) [![Build Status](https://travis-ci.org/truckingsim/Ajax-Bootstrap-Select.svg)](https://travis-ci.org/truckingsim/Ajax-Bootstrap-Select)
 
 
 
@@ -446,7 +445,7 @@ $('.select-picker')
         liveSearch: true
     })
     .ajaxSelectPicker({
-        ajaxOptions: {
+        ajax: {
             url: '/server/path/to/ajax/results',
             data: function () {
                 var params = {
@@ -490,7 +489,7 @@ $('.select-picker')
 ***
 
 ## License
-Copyright (c) 2014 Adam Heim, contributors.  
+Copyright (c) 2015 Adam Heim, contributors.  
 Released under the MIT license
 
 [Bootstrap 3.2.0+]: http://getbootstrap.com/getting-started/#download
@@ -502,3 +501,4 @@ Released under the MIT license
 
 [jQuery 1.9+]: http://jquery.com/download/
 [jQuery]: http://jquery.com
+
